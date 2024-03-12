@@ -1,7 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify,redirect, url_for
 from Config.Config import app, db, login_manager
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Email, InputRequired, Length, ValidationError, EqualTo
 from flask import render_template_string
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 
@@ -30,7 +28,7 @@ def register():
             return error_message
     return render_template('register.html')
 
-#-----------REGISTER API --------------
+#-----------LOGIN API --------------
 @user_api.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -43,6 +41,19 @@ def login():
         else:
             error_message = response
             return error_message
+        
+
+
+@user_api.route('/users/<int:user_id>', methods=['PUT'])
+@jwt_required()
+def update_user(user_id):
+    return user_crud.update_user(user_id, request)
+
+@user_api.route('/users/<int:user_id>', methods=['DELETE'])
+@jwt_required()
+def delete_user(user_id):
+    return user_crud.delete_user(user_id)
+
 
 
 #-----------VERIFY EMAIL API --------------

@@ -9,7 +9,7 @@ import bcrypt
 from email_validator import validate_email
 #from flask_redmail import RedMail
 import redmail
-user_auth = Blueprint('auth', __name__)
+user_crud = Blueprint('user', __name__)
 #redmail = RedMail(app)
 
 
@@ -61,7 +61,7 @@ class Users():
         user = User()
 
         #-----REQUIRED DATA---------
-        required = ["u_id", "first_name", "last_name", "email", "password", "verification_code"]
+        required = ["first_name", "last_name", "email", "password", "verification_code"]
         for key in required:
             if key not in data:
                 return custom_abort(400, "You are missing a required key - " + key)
@@ -112,7 +112,7 @@ class Users():
     }), 200
 
 
-    #---------------REGISTER---------------------
+    #---------------LOGIN---------------------
     def login(self, request):
         data = request.get_json()
         print(data)
@@ -148,7 +148,43 @@ class Users():
     }), 200
 
 
+    #---------------UPDATE USER---------------------
+    def update_user(self, user_id, request):
+            data = request.get_json()
+                    #request.form
+
+            user = User.query.filter_by(u_id=user_id).first()
+
+            if user is None:
+                return custom_abort(404, "User not found")
+
+            # Update user attributes
+            for key, value in data.items():
+                if hasattr(user, key):
+                    setattr(user, key, value)
+
+            db.session.commit()
+
+            return jsonify({
+                "message": "User updated successfully",
+                "user": convertor(user, ["password", "confirmed"])
+            }), 200
+    
+    
+     #---------------DELETE USER---------------------
+    def delete_user(self, user_id):
+        user = User.query.filter_by(u_id=user_id).first()
+
+        if user is None:
+            return custom_abort(404, "User not found")
+
+        db.session.delete(user)
+        db.session.commit()
+
+        return jsonify({
+            "message": "User deleted successfully"
+        }), 200
 
 
 
-user_crud = Users()
+user_crud = Users()#

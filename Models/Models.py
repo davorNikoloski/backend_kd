@@ -17,6 +17,7 @@ class User(db.Model):
 
     email_confirmed = db.Column(db.Boolean, default=False)
     verification_code = db.Column(db.String(6))
+    requests_number = db.Column(db.Integer, default=0)  
 
     attributes = db.relationship('UserAttributes', backref=db.backref('user', lazy=True))
     friends = db.relationship('UserFriends', backref=db.backref('user', lazy=True))
@@ -36,6 +37,8 @@ class UserFriends(db.Model):
     uf_id = db.Column(db.Integer, primary_key=True)
     u_id = db.Column(db.Integer, db.ForeignKey('user.u_id', ondelete='CASCADE'))
     f_id = db.Column(db.Integer, db.ForeignKey('user.u_id', ondelete='CASCADE'))
+    status = db.Column(db.Enum('pending', 'accepted', 'rejected'), nullable=False, default='pending')
+    timestamp = db.Column(db.TIMESTAMP, nullable=False, server_default=db.func.current_timestamp())
 
 # Tag Model
 class Tag(db.Model):
@@ -59,6 +62,7 @@ class Post(db.Model):
     content = db.Column(db.Text)
     icon_path = db.Column(db.String(255))
     image_paths = db.Column(db.Text)
+    
     category_id = db.Column(db.Integer, db.ForeignKey('category.category_id', ondelete='SET NULL'))
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.tag_id', ondelete='SET NULL'))
     date_created = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
